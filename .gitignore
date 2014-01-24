@@ -8,3 +8,4 @@ build
 .idea
 ImPulseControl.iml
 local.properties
+*.swp
