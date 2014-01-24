@@ -1,0 +1,81 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".Scheduler" >
+
+    <CheckBox
+        android:id="@+id/enableSchedulerCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/enablePulseScheduleString" />
+
+
+    <ScrollView
+        android:id="@+id/scheduleStartAndEndScrollView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/saveScheduleButton"
+        android:layout_alignLeft="@+id/enableSchedulerCheckBox"
+        android:layout_alignRight="@+id/enableSchedulerCheckBox"
+        android:layout_below="@+id/enableSchedulerCheckBox" >
+
+        <LinearLayout
+            android:id="@+id/scheduleStartAndEndScrollViewLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/scheduleStartTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="1dp"
+                android:text="@string/pulseScheduleStartString"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TimePicker
+                android:id="@+id/scheduleStartTimePicker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal" />
+
+            <TextView
+                android:id="@+id/scheduleEndTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/pulseScheduleEndString"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TimePicker
+                android:id="@+id/scheduleEndTimePicker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/saveScheduleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/saveScheduleButtonString"
+        android:onClick="savePreferences" />
+
+</RelativeLayout>
