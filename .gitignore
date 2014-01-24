@@ -5,3 +5,6 @@ gen
 .settings
 build
 .gradle
+.idea
+ImPulseControl.iml
+local.properties
