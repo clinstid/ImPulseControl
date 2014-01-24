@@ -3,13 +3,17 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.5.+'
+        classpath 'com.android.tools.build:gradle:0.7.3'
     }
 }
 apply plugin: 'android'
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.10'
+}
+
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
+    compile 'com.android.support:support-v4:18.0.+'
 }
 
 android {
