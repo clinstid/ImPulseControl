@@ -48,6 +48,11 @@ public class EndAlarmReceiver extends WakefulBroadcastReceiver {
 				ImpulseControlApplication.DEFAULT_END_MINUTE));
 		end.set(Calendar.SECOND, 0);
 		
+		Calendar rightNow = Calendar.getInstance();
+		if (rightNow.getTime().after(end.getTime())) {
+			end.add(Calendar.DAY_OF_MONTH, 1);
+		}
+
 		alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, end.getTimeInMillis(),
 				AlarmManager.INTERVAL_DAY, endAlarmIntent);
 		

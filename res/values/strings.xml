@@ -3,7 +3,7 @@
 
     <string name="app_name">ImPulse Control</string>
     <string name="action_settings">Settings</string>
-    <string name="enablePulseScheduleString">Enable notification light pulse sleep</string>
+    <string name="enablePulseScheduleString">Sleep schedule for notification light</string>
     <string name="pulseScheduleStartString">Start sleep</string>
     <string name="pulseScheduleEndString">End sleep</string>
     <string name="saveScheduleButtonString">Save</string>

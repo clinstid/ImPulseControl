@@ -75,7 +75,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:text="@string/saveScheduleButtonString"
-        android:onClick="savePreferences" />
+        android:onClick="savePreferencesButtonHandler"
+        android:text="@string/saveScheduleButtonString" />
 
 </RelativeLayout>

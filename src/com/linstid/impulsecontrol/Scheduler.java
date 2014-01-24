@@ -17,6 +17,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 public class Scheduler extends Activity {
 	private final Context context = this;
@@ -24,16 +25,6 @@ public class Scheduler extends Activity {
 	private EndAlarmReceiver endAlarm = new EndAlarmReceiver();
 
 	public static final String DEBUG_TAG = "Scheduler";
-
-	private SharedPreferences preferences;
-
-	public SharedPreferences getPreferences() {
-		return preferences;
-	}
-
-	public void setPreferences(SharedPreferences preferences) {
-		this.preferences = preferences;
-	}
 
 	private boolean scheduleEnabled;
 
@@ -47,24 +38,15 @@ public class Scheduler extends Activity {
 	}
 
 	public void setScheduleEnabled(boolean scheduleEnabled) {
+		if (this.scheduleEnabled == scheduleEnabled) {
+			return;
+		}
+
 		this.scheduleEnabled = scheduleEnabled;
-		updateCheckBox();
-		updateScheduleDisplay();
 		Log.d(DEBUG_TAG, "Schedule enabled = " + isScheduleEnabled());
 
-		int newValue = scheduleEnabled ? 1 : 0;
-		int previousValue = -1;
-		try {
-			previousValue = getCurrentDisplaySetting();
-		} catch (SettingNotFoundException e) {
-			displayDeviceNotSupportedAlert();
-			previousValue = -1;
-		}
-		if (previousValue >= 0 && newValue != previousValue) {
-			android.provider.Settings.System.putInt(
-					context.getContentResolver(), "notification_light_pulse",
-					newValue);
-		}
+		updateCheckBox();
+		updateScheduleDisplay();
 	}
 
 	private void displayDeviceNotSupportedAlert() {
@@ -73,9 +55,9 @@ public class Scheduler extends Activity {
 		alertDialogBuilder
 				.setTitle("Device not supported")
 				.setMessage(
-						"Your device does not have the required Android system setting to change the pulse notification light setting. Do you want to exit?")
+						"Your device does not have the required Android system setting to change the pulse notification light setting. Application will now exit.")
 				.setCancelable(false)
-				.setPositiveButton("Yes",
+				.setPositiveButton("OK",
 						new DialogInterface.OnClickListener() {
 
 							@Override
@@ -83,14 +65,14 @@ public class Scheduler extends Activity {
 									int which) {
 								Scheduler.this.finish();
 							}
-						})
-				.setNegativeButton("No", new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-					}
-				});
+						});
+//				.setNegativeButton("No", new DialogInterface.OnClickListener() {
+//
+//					@Override
+//					public void onClick(DialogInterface dialog, int which) {
+//						dialog.cancel();
+//					}
+//				});
 		AlertDialog alertDialog = alertDialogBuilder.create();
 		alertDialog.show();
 
@@ -114,7 +96,11 @@ public class Scheduler extends Activity {
 	}
 
 	// Called when the Save button is clicked.
-	public void savePreferences(View view) {
+	public void savePreferencesButtonHandler(View view) {
+		savePreferences();
+	}
+	
+	public void savePreferences() {
 		// Grab the current values from the TimePickers
 		TimePicker startTimePicker = (TimePicker) findViewById(R.id.scheduleStartTimePicker);
 		TimePicker endTimePicker = (TimePicker) findViewById(R.id.scheduleEndTimePicker);
@@ -129,7 +115,8 @@ public class Scheduler extends Activity {
 				+ "] End[" + getScheduleEndHour() + ":"
 				+ getScheduleEndMinute() + "]");
 
-		SharedPreferences.Editor editor = getPreferences().edit();
+		SharedPreferences preferences = getSharedPreferences(ImpulseControlApplication.PREFS_NAME, 0);
+		SharedPreferences.Editor editor = preferences.edit();
 		editor.putBoolean(ImpulseControlApplication.SCHEDULE_ENABLED_KEY, isScheduleEnabled());
 		editor.putInt(ImpulseControlApplication.SCHEDULE_START_HOUR_KEY, getScheduleStartHour());
 		editor.putInt(ImpulseControlApplication.SCHEDULE_START_MINUTE_KEY, getScheduleStartMinute());
@@ -145,6 +132,14 @@ public class Scheduler extends Activity {
 			startAlarm.cancelAlarm(this);
 			endAlarm.cancelAlarm(this);
 		}
+		
+		Context context = getApplicationContext();
+		CharSequence text = "Saved preferences.";
+		int duration = Toast.LENGTH_SHORT;
+		Toast toast = Toast.makeText(context, text, duration);
+		toast.show();
+
+		ImpulseControlApplication.setLightPulseValue();
 	}
 
 	public void updateTimePickers() {
@@ -195,16 +190,18 @@ public class Scheduler extends Activity {
 			displayDeviceNotSupportedAlert();
 		}
 
-		setPreferences(getSharedPreferences(ImpulseControlApplication.PREFS_NAME, 0));
-		setScheduleEnabled(getPreferences().getBoolean(ImpulseControlApplication.SCHEDULE_ENABLED_KEY,
-				false));
-		setScheduleStartHour(getPreferences()
-				.getInt(ImpulseControlApplication.SCHEDULE_START_HOUR_KEY, 0));
-		setScheduleStartMinute(getPreferences().getInt(
-				ImpulseControlApplication.SCHEDULE_START_MINUTE_KEY, 0));
-		setScheduleEndHour(getPreferences().getInt(ImpulseControlApplication.SCHEDULE_END_HOUR_KEY, 0));
-		setScheduleEndMinute(getPreferences()
-				.getInt(ImpulseControlApplication.SCHEDULE_END_MINUTE_KEY, 0));
+		SharedPreferences preferences = getSharedPreferences(
+				ImpulseControlApplication.PREFS_NAME, 0);
+		setScheduleEnabled(preferences.getBoolean(
+				ImpulseControlApplication.SCHEDULE_ENABLED_KEY, ImpulseControlApplication.DEFAULT_SCHEDULE_ENABLED));
+		setScheduleStartHour(preferences.getInt(
+				ImpulseControlApplication.SCHEDULE_START_HOUR_KEY, ImpulseControlApplication.DEFAULT_START_HOUR));
+		setScheduleStartMinute(preferences.getInt(
+				ImpulseControlApplication.SCHEDULE_START_MINUTE_KEY, ImpulseControlApplication.DEFAULT_START_MINUTE));
+		setScheduleEndHour(preferences.getInt(
+				ImpulseControlApplication.SCHEDULE_END_HOUR_KEY, ImpulseControlApplication.DEFAULT_END_HOUR));
+		setScheduleEndMinute(preferences.getInt(
+				ImpulseControlApplication.SCHEDULE_END_MINUTE_KEY, ImpulseControlApplication.DEFAULT_END_MINUTE));
 
 		CheckBox enableCheckBox = (CheckBox) findViewById(R.id.enableSchedulerCheckBox);
 		enableCheckBox
@@ -213,6 +210,7 @@ public class Scheduler extends Activity {
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
 						setScheduleEnabled(isChecked);
+						savePreferences();
 					}
 				});
 
