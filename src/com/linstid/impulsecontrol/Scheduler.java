@@ -119,6 +119,9 @@ public class Scheduler extends Activity {
         editor.commit();
 
         if (isScheduleEnabled()) {
+            // Clear existing alarms before we set new ones.
+            startAlarm.cancelAlarm(this);
+            endAlarm.cancelAlarm(this);
             startAlarm.setAlarm(this);
             endAlarm.setAlarm(this);
         } else {

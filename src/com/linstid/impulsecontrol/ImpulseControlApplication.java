@@ -60,13 +60,6 @@ public class ImpulseControlApplication extends Application {
         end.set(Calendar.MINUTE,
                 preferences.getInt(SCHEDULE_END_MINUTE_KEY, DEFAULT_END_MINUTE));
 
-        Log.d(DEBUG_TAG, "Setting light pulse value - now[" + rightNow.getTime()
-                + "] start[" + start.getTime() + "] end[" + end.getTime() + "]");
-
-        if (rightNow.getTime().after(start.getTime())) {
-            start.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
         if (rightNow.getTime().after(end.getTime())) {
             end.add(Calendar.DAY_OF_MONTH, 1);
         }
@@ -78,10 +71,17 @@ public class ImpulseControlApplication extends Application {
         // In the off-chance that we happen to land right on the start or end
         // date, adjust up by 1 ms.
         if (rightNowDate.equals(startDate) || rightNowDate.equals(endDate)) {
-            rightNowDate.setTime(rightNowDate.getTime() + 1);
+            rightNow.add(Calendar.SECOND, 1);
+            rightNowDate = rightNow.getTime();
         }
 
+        Log.d(DEBUG_TAG, "Setting light pulse value - now[" + rightNow.getTime()
+                + "] start[" + start.getTime() + "] end[" + end.getTime() + "]");
+
         int lightPulseValue;
+
+        Log.d(DEBUG_TAG, "now after start = " + rightNowDate.after(startDate) +
+                " now before end = " + rightNowDate.before(endDate));
 
         if (rightNowDate.after(startDate) && rightNowDate.before(endDate)) {
             lightPulseValue = LIGHT_PULSE_DISABLE;

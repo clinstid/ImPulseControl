@@ -48,11 +48,6 @@ public class StartAlarmReceiver extends WakefulBroadcastReceiver {
 				ImpulseControlApplication.DEFAULT_START_MINUTE));
 		start.set(Calendar.SECOND, 0);
 		
-		Calendar rightNow = Calendar.getInstance();
-		if (rightNow.getTime().after(start.getTime())) {
-			start.add(Calendar.DAY_OF_MONTH, 1);
-		}
-
 		alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, start.getTimeInMillis(),
 				AlarmManager.INTERVAL_DAY, startAlarmIntent);
 		
