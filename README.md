@@ -10,4 +10,4 @@ export ANDROID_HOME=/path/to/android/sdk
 ```
 ## Screenshots
 
-<img src="https://raw2.github.com/clinstid/ImPulseControl/master/screenshots/Screenshot%20(09-48PM,%20Jan%2025,%202014).png" style="width: 640px;" />
+![alt text](https://raw2.github.com/clinstid/ImPulseControl/master/screenshots/Screenshot_Jan_25_2014.png "Jan 25, 2014 Screenshot")
