@@ -1,24 +1,21 @@
 package com.linstid.impulsecontrol;
 
-import java.util.Calendar;
-
-import com.linstid.impulsecontrol.R;
-
-import android.os.Bundle;
-import android.provider.Settings.SettingNotFoundException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.LinearLayout;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import java.util.Calendar;
 
 public class Scheduler extends Activity {
     private final Context context = this;
@@ -45,9 +42,6 @@ public class Scheduler extends Activity {
 
         this.scheduleEnabled = scheduleEnabled;
         Log.d(DEBUG_TAG, "Schedule enabled = " + isScheduleEnabled());
-
-        updateCheckBox();
-        updateScheduleDisplay();
     }
 
     private void displayDeviceNotSupportedAlert() {
@@ -70,11 +64,6 @@ public class Scheduler extends Activity {
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
 
-    }
-
-    public void updateCheckBox() {
-        final CheckBox enableCheckBox = (CheckBox) findViewById(R.id.enableSchedulerCheckBox);
-        enableCheckBox.setChecked(scheduleEnabled);
     }
 
     public void setStartAlarm(Context context) {
@@ -148,20 +137,6 @@ public class Scheduler extends Activity {
         endTimePicker.setCurrentMinute(getScheduleEndMinute());
     }
 
-    public void updateScheduleDisplay() {
-        int newView = View.GONE;
-
-        if (isScheduleEnabled()) {
-            newView = View.VISIBLE;
-        }
-
-        LinearLayout scheduleLayout = (LinearLayout) findViewById(R.id.scheduleStartAndEndScrollViewLinearLayout);
-        for (int i = 0; i < scheduleLayout.getChildCount(); i++) {
-            View view = scheduleLayout.getChildAt(i);
-            view.setVisibility(newView);
-        }
-    }
-
     private int scheduleStartHour = 0;
     private int scheduleStartMinute = 0;
     private int scheduleEndHour = 0;
@@ -206,7 +181,6 @@ public class Scheduler extends Activity {
                     public void onCheckedChanged(CompoundButton buttonView,
                                                  boolean isChecked) {
                         setScheduleEnabled(isChecked);
-                        savePreferences();
                     }
                 });
 
