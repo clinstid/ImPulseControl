@@ -8,6 +8,8 @@ buildscript {
 }
 apply plugin: 'android'
 
+apply plugin: 'eclipse'
+
 dependencies {
     compile 'com.android.support:support-v4:18.0.+'
 }

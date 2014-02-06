@@ -18,7 +18,8 @@ public class BootReceiver extends BroadcastReceiver {
 		
 		// Now figure out if the notification light is supposed to be enabled or
 		// disabled.
-		// TODO
+		ImpulseControlApplication.setLightPulseValue();
+
 	}
 
 }
