@@ -17,7 +17,6 @@
         android:layout_alignParentTop="true"
         android:text="@string/enablePulseScheduleString" />
 
-
     <ScrollView
         android:id="@+id/scheduleStartAndEndScrollView"
         android:layout_width="wrap_content"
@@ -25,7 +24,7 @@
         android:layout_above="@+id/saveScheduleButton"
         android:layout_alignLeft="@+id/enableSchedulerCheckBox"
         android:layout_alignRight="@+id/enableSchedulerCheckBox"
-        android:layout_below="@+id/enableSchedulerCheckBox" >
+        android:layout_below="@+id/enableSchedulerCheckBox">
 
         <LinearLayout
             android:id="@+id/scheduleStartAndEndScrollViewLinearLayout"
@@ -38,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="1dp"
+                android:layout_marginTop="2dp"
                 android:text="@string/pulseScheduleStartString"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -67,6 +66,13 @@
 
         </LinearLayout>
     </ScrollView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/notificationLightStatus"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/saveScheduleButton" />
 
     <Button
         android:id="@+id/saveScheduleButton"

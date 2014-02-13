@@ -4,14 +4,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -24,24 +24,9 @@ public class Scheduler extends Activity {
 
     public static final String DEBUG_TAG = "Scheduler";
 
-    private boolean scheduleEnabled;
-
-    public boolean isScheduleEnabled() {
-        return scheduleEnabled;
-    }
-
     public int getCurrentDisplaySetting() throws SettingNotFoundException {
         return android.provider.Settings.System.getInt(
                 context.getContentResolver(), "notification_light_pulse");
-    }
-
-    public void setScheduleEnabled(boolean scheduleEnabled) {
-        if (this.scheduleEnabled == scheduleEnabled) {
-            return;
-        }
-
-        this.scheduleEnabled = scheduleEnabled;
-        Log.d(DEBUG_TAG, "Schedule enabled = " + isScheduleEnabled());
     }
 
     private void displayDeviceNotSupportedAlert() {
@@ -68,46 +53,41 @@ public class Scheduler extends Activity {
 
     public void setStartAlarm(Context context) {
         Calendar updateTime = Calendar.getInstance();
-        updateTime.set(Calendar.HOUR_OF_DAY, getScheduleStartHour());
-        updateTime.set(Calendar.MINUTE, getScheduleStartMinute());
+        updateTime.set(Calendar.HOUR_OF_DAY, ImpulseControlApplication.getScheduleStartHour());
+        updateTime.set(Calendar.MINUTE, ImpulseControlApplication.getScheduleStartMinute());
     }
 
     public void setEndAlarm(Context context) {
         Calendar updateTime = Calendar.getInstance();
-        updateTime.set(Calendar.HOUR_OF_DAY, getScheduleEndHour());
-        updateTime.set(Calendar.MINUTE, getScheduleEndMinute());
+        updateTime.set(Calendar.HOUR_OF_DAY, ImpulseControlApplication.getScheduleEndHour());
+        updateTime.set(Calendar.MINUTE, ImpulseControlApplication.getScheduleEndMinute());
     }
 
     // Called when the Save button is clicked.
     public void savePreferencesButtonHandler(View view) {
         savePreferences();
+        updateDisplay();
     }
 
     public void savePreferences() {
         // Grab the current values from the TimePickers
         TimePicker startTimePicker = (TimePicker) findViewById(R.id.scheduleStartTimePicker);
         TimePicker endTimePicker = (TimePicker) findViewById(R.id.scheduleEndTimePicker);
-        setScheduleStartHour(startTimePicker.getCurrentHour());
-        setScheduleStartMinute(startTimePicker.getCurrentMinute());
-        setScheduleEndHour(endTimePicker.getCurrentHour());
-        setScheduleEndMinute(endTimePicker.getCurrentMinute());
+        CheckBox enableCheckBox = (CheckBox) findViewById(R.id.enableSchedulerCheckBox);
+
+        ImpulseControlApplication.setScheduleEnabled(enableCheckBox.isChecked());
+        ImpulseControlApplication.setScheduleStartHour(startTimePicker.getCurrentHour());
+        ImpulseControlApplication.setScheduleStartMinute(startTimePicker.getCurrentMinute());
+        ImpulseControlApplication.setScheduleEndHour(endTimePicker.getCurrentHour());
+        ImpulseControlApplication.setScheduleEndMinute(endTimePicker.getCurrentMinute());
 
         Log.d(DEBUG_TAG, "Saving preferences: " + ImpulseControlApplication.SCHEDULE_ENABLED_KEY + "["
-                + isScheduleEnabled() + "] " + "Start["
-                + getScheduleStartHour() + ":" + getScheduleStartMinute()
-                + "] End[" + getScheduleEndHour() + ":"
-                + getScheduleEndMinute() + "]");
+                + ImpulseControlApplication.isScheduleEnabled() + "] " + "Start["
+                + ImpulseControlApplication.getScheduleStartHour() + ":" + ImpulseControlApplication.getScheduleStartMinute()
+                + "] End[" + ImpulseControlApplication.getScheduleEndHour() + ":"
+                + ImpulseControlApplication.getScheduleEndMinute() + "]");
 
-        SharedPreferences preferences = getSharedPreferences(ImpulseControlApplication.PREFS_NAME, 0);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(ImpulseControlApplication.SCHEDULE_ENABLED_KEY, isScheduleEnabled());
-        editor.putInt(ImpulseControlApplication.SCHEDULE_START_HOUR_KEY, getScheduleStartHour());
-        editor.putInt(ImpulseControlApplication.SCHEDULE_START_MINUTE_KEY, getScheduleStartMinute());
-        editor.putInt(ImpulseControlApplication.SCHEDULE_END_HOUR_KEY, getScheduleEndHour());
-        editor.putInt(ImpulseControlApplication.SCHEDULE_END_MINUTE_KEY, getScheduleEndMinute());
-        editor.commit();
-
-        if (isScheduleEnabled()) {
+        if (ImpulseControlApplication.isScheduleEnabled()) {
             // Clear existing alarms before we set new ones.
             startAlarm.cancelAlarm(this);
             endAlarm.cancelAlarm(this);
@@ -124,29 +104,20 @@ public class Scheduler extends Activity {
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
 
-        ImpulseControlApplication.setLightPulseValue();
+        ImpulseControlApplication.setLightPulseValue(ImpulseControlApplication.checkCurrentLightPulseValue(ImpulseControlApplication.getPreferences()));
     }
 
     public void updateTimePickers() {
         TimePicker startTimePicker = (TimePicker) findViewById(R.id.scheduleStartTimePicker);
-        startTimePicker.setCurrentHour(getScheduleStartHour());
-        startTimePicker.setCurrentMinute(getScheduleStartMinute());
+        startTimePicker.setCurrentHour(ImpulseControlApplication.getScheduleStartHour());
+        startTimePicker.setCurrentMinute(ImpulseControlApplication.getScheduleStartMinute());
 
         TimePicker endTimePicker = (TimePicker) findViewById(R.id.scheduleEndTimePicker);
-        endTimePicker.setCurrentHour(getScheduleEndHour());
-        endTimePicker.setCurrentMinute(getScheduleEndMinute());
+        endTimePicker.setCurrentHour(ImpulseControlApplication.getScheduleEndHour());
+        endTimePicker.setCurrentMinute(ImpulseControlApplication.getScheduleEndMinute());
     }
 
-    private int scheduleStartHour = 0;
-    private int scheduleStartMinute = 0;
-    private int scheduleEndHour = 0;
-    private int scheduleEndMinute = 0;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scheduler);
-
+    public void updateDisplay() {
         // This call has the side effect of displaying an alert if the device
         // doesn't support the system setting we need to control the
         // notification light.
@@ -155,68 +126,38 @@ public class Scheduler extends Activity {
         // android.provider.Settings.System ... "notification_light_pulse",
         //
         // TODO: Find and test some other devices.
+        int previous = 0;
         try {
-            int previous = getCurrentDisplaySetting();
+            previous = getCurrentDisplaySetting();
         } catch (SettingNotFoundException e) {
             displayDeviceNotSupportedAlert();
         }
 
-        SharedPreferences preferences = getSharedPreferences(
-                ImpulseControlApplication.PREFS_NAME, 0);
-        setScheduleEnabled(preferences.getBoolean(
-                ImpulseControlApplication.SCHEDULE_ENABLED_KEY, ImpulseControlApplication.DEFAULT_SCHEDULE_ENABLED));
-        setScheduleStartHour(preferences.getInt(
-                ImpulseControlApplication.SCHEDULE_START_HOUR_KEY, ImpulseControlApplication.DEFAULT_START_HOUR));
-        setScheduleStartMinute(preferences.getInt(
-                ImpulseControlApplication.SCHEDULE_START_MINUTE_KEY, ImpulseControlApplication.DEFAULT_START_MINUTE));
-        setScheduleEndHour(preferences.getInt(
-                ImpulseControlApplication.SCHEDULE_END_HOUR_KEY, ImpulseControlApplication.DEFAULT_END_HOUR));
-        setScheduleEndMinute(preferences.getInt(
-                ImpulseControlApplication.SCHEDULE_END_MINUTE_KEY, ImpulseControlApplication.DEFAULT_END_MINUTE));
+        TextView lightStatusTextView = (TextView) findViewById(R.id.notificationLightStatus);
+        if (previous == ImpulseControlApplication.LIGHT_PULSE_ENABLE) {
+            lightStatusTextView.setTextColor(Color.GREEN);
+            lightStatusTextView.setText(R.string.notificationLightStatusEnabled);
+        } else {
+            lightStatusTextView.setTextColor(Color.RED);
+            lightStatusTextView.setText(R.string.notificationLightStatusDisabled);
+        }
 
-        CheckBox enableCheckBox = (CheckBox) findViewById(R.id.enableSchedulerCheckBox);
-        enableCheckBox
-                .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView,
-                                                 boolean isChecked) {
-                        setScheduleEnabled(isChecked);
-                    }
-                });
-
+        updateCheckBox();
         updateTimePickers();
+
     }
 
-    public int getScheduleStartHour() {
-        return scheduleStartHour;
+    private void updateCheckBox() {
+        CheckBox enableCheckBox = (CheckBox) findViewById(R.id.enableSchedulerCheckBox);
+        enableCheckBox.setChecked(ImpulseControlApplication.isScheduleEnabled());
     }
 
-    public void setScheduleStartHour(int scheduleStartHour) {
-        this.scheduleStartHour = scheduleStartHour;
-    }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_scheduler);
 
-    public int getScheduleStartMinute() {
-        return scheduleStartMinute;
-    }
-
-    public void setScheduleStartMinute(int scheduleStartMinute) {
-        this.scheduleStartMinute = scheduleStartMinute;
-    }
-
-    public int getScheduleEndHour() {
-        return scheduleEndHour;
-    }
-
-    public void setScheduleEndHour(int scheduleEndHour) {
-        this.scheduleEndHour = scheduleEndHour;
-    }
-
-    public int getScheduleEndMinute() {
-        return scheduleEndMinute;
-    }
-
-    public void setScheduleEndMinute(int scheduleEndMinute) {
-        this.scheduleEndMinute = scheduleEndMinute;
+        updateDisplay();
     }
 
     @Override

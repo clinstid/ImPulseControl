@@ -7,5 +7,7 @@
     <string name="pulseScheduleStartString">Start sleep</string>
     <string name="pulseScheduleEndString">End sleep</string>
     <string name="saveScheduleButtonString">Save</string>
+    <string name="notificationLightStatusEnabled">Notification Light is Enabled</string>
+    <string name="notificationLightStatusDisabled">Notification Light is Disabled</string>
 
 </resources>
